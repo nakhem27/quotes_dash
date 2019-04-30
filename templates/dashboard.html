@@ -47,17 +47,24 @@
                 <h4>Quotes</h4>
                 {% for quotes in all_quotes %}
 
-                <div class="box">
-                        <p>{{ quotes["author_of_quote"] }} : {{ quotes["quote_content"] }} </p>
-                        <p>Posted By: {{ quotes["posted_by"]}}</p>
-                        <p>amt people like this</p>
+                <div class="border border-success">
+                        <p>{{ quotes[0].author_of_quote }} : {{ quotes[0].quote_content }} </p>
+                        <p>Posted By: <form action="/user/{{ quotes[1].id }}" method="POST"><button class="btn btn-link">{{ quotes[1].first_name }} {{ quotes[1].last_name }}</button></form></p>
+                        {% set g = []%}
+                        {% for one_count_likes in count_likes %}
+                        {% if one_count_likes["quote_id"] == quotes[0].id %}
+                            {% set z = g.append(1) %}
+                        {% endif %}
+                        {% endfor %}
+                        <p>{{ g|length }} people like this</p>
                         <form action="/like_quote" method="POST">
-                            <input type="hidden" name="liked_quote_value" value="{{ quotes["id"] }}">
+                            <input type="hidden" name="liked_quote_value" value="{{ quotes[0].id }}">
+                            <input type="hidden" name="login_id" value="{{ login_id }}">
                             <input type="submit" class="insidequote" value="Like">
                         </form>
-                        {% if quotes["user_id"] == login_id %}
+                        {% if quotes[1].id == login_id %}
                             <form action="/delete_quote" method="POST">
-                                <input type="hidden" name="deleted_quote_value" value="{{ quotes["id"] }}">
+                                <input type="hidden" name="deleted_quote_value" value="{{ quotes[0].id }}">
                                 <input type="submit" class="insidequote" value="Delete">
                             </form>
                         {% endif %}

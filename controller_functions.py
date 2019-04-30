@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, flash, request, session
 from config import app, db, func, IntegrityError, bcrypt, re
-from models import User, Quote
+from models import User, Quote, Like
 
 def home():
     return render_template("login.html")
@@ -52,8 +52,9 @@ def dashboard():
     first_name = session["first_name"]
     last_name = session["last_name"]
     login_id = session["user_id"]
-    all_quotes = Quote.query.all()
-    return render_template("dashboard.html", login_name = login_name, login_id = login_id, all_quotes = all_quotes, first_name = first_name, last_name = last_name)
+    all_quotes = db.session.query(Quote, User).filter(Quote.user_id == User.id).all()
+    count_likes = Like.query.all()
+    return render_template("dashboard.html", login_name = login_name, login_id = login_id, all_quotes = all_quotes, first_name = first_name, last_name = last_name, count_likes = count_likes)
 
 def view_edit_account(id):
     login_id = session["login_id"]
@@ -92,13 +93,22 @@ def add_quote():
         return redirect("/dashboard")
 
 def like_quote():
-    return redirect("/")
+    login_id = session["user_id"]
+    cant_like_more_than_once = Like.query.filter(Like.user_id == login_id).filter(Like.quote_id == request.form["liked_quote_value"]).count()
+    if int(cant_like_more_than_once) > 0:
+        flash("You already liked quote!")
+        return redirect("/dashboard")
+    else:
+        like_quote = Like.like_quote(request.form)
+        return redirect("/dashboard")
 
 def delete_quote():
-    return redirect("/")
+    delete_quote = Quote.delete_quote(request.form)
+    return redirect("/dashboard")
 
-def view_quotes_added_by_one_user():
-    one_user_quotes = 1
+def view_quotes_added_by_one_user(id):
+    one_user_quotes = all_quotes = db.session.query(Quote, User).filter(Quote.user_id == User.id).filter(User.id == id).all()
+    print(one_user_quotes)
     return render_template("view_quotes_added_by_one_user.html", one_user_quotes = one_user_quotes)
 
 def logout():

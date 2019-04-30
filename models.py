@@ -88,19 +88,18 @@ class Quote(db.Model):
 
     @classmethod
     def add_new_quote(cls, new_quote_data):
-        add_quote = cls(
+        add_new_quote = cls(
             user_id = new_quote_data["login_id"],
-            posted_by = new_quote_data["posted_by"],
             author_of_quote = new_quote_data["author_of_quote"],
             quote_content = new_quote_data["quote_content"]
         )
-        db.session.add(add_quote)
+        db.session.add(add_new_quote)
         db.session.commit()
         flash("Quote successfully added!!")
-        return add_quote
+        return add_new_quote
 
     @classmethod
-    def delete_a_quote(cls, delete_quote_data):
+    def delete_quote(cls, delete_quote_data):
         quote_instance_to_delete = Quote.query.filter(Quote.id == delete_quote_data['deleted_quote_value']).delete()
         db.session.commit()
         flash("You deleted this quote!")
@@ -114,3 +113,14 @@ class Like(db.Model):
     quote_liked_by_user = db.relationship('Quote', foreign_keys=[quote_id],backref='liked_quote', cascade='all')
     created_at = db.Column(db.DateTime, server_default=func.now())
     updated_at = db.Column(db.DateTime, server_default=func.now(), onupdate=func.now())
+
+    @classmethod
+    def like_quote(cls, like_quote):
+        add_like = cls(
+            user_id = like_quote["login_id"],
+            quote_id = like_quote["liked_quote_value"]
+        )
+        db.session.add(add_like)
+        db.session.commit()
+        flash("You liked a quote!")
+        return add_like

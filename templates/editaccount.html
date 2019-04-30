@@ -20,8 +20,8 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
             <li class="nav-item active">
-                <form action="/myaccount/{{ user.id }}" method="POST">
-                    <button class="btn btn-light">Edit My Account</button>
+                <form action="/dashboard" method="POST">
+                    <button class="btn btn-light">Back</button>
                 </form>
             </li>
             <li class="nav-item active">
@@ -34,7 +34,13 @@
     </nav>
 
     <div class="container">
-
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         <form action="/edit_account" method="POST">
 
             <input type="hidden" name="login_id" value="{{ login_id }}">

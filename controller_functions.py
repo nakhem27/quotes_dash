@@ -23,7 +23,7 @@ def login():
     login_user = User.query.filter_by(email = request.form["email"]).all()
 
     if login_user:
-        session["user_id"] = login_user[0].id
+        session["login_id"] = login_user[0].id
         session["first_name"] = login_user[0].first_name
         session["last_name"] = login_user[0].last_name
         session["email"] = login_user[0].email
@@ -51,34 +51,45 @@ def dashboard():
 
     first_name = session["first_name"]
     last_name = session["last_name"]
-    posted_by = "str(first_name) " + "str(last_name)"
     login_id = session["user_id"]
     all_quotes = Quote.query.all()
-    return render_template("dashboard.html", login_name = login_name, login_id = login_id, posted_by = posted_by, all_quotes = all_quotes)
+    return render_template("dashboard.html", login_name = login_name, login_id = login_id, all_quotes = all_quotes, first_name = first_name, last_name = last_name)
 
-def view_edit_account():
+def view_edit_account(id):
     login_id = session["login_id"]
-    first_name = session["first_name"]
-    last_name = session["last_name"]
-    email = session["email"]
-    return render_template("editaccount.html", first_name = first_name, last_name = last_name, email = email)
+    user_instance_to_update = User.query.get(request.form["login_id"])
+    first_name = user_instance_to_update.first_name
+    last_name = user_instance_to_update.last_name
+    email = user_instance_to_update.email
+    return render_template("editaccount.html", first_name = first_name, last_name = last_name, email = email, login_id = login_id)
 
 def update_account():
+    user_instance_to_update = User.query.get(request.form["login_id"])
+    first_name = user_instance_to_update.first_name
+    last_name = user_instance_to_update.last_name
+    email = user_instance_to_update.email
+
     validation_check = User.validate_edit_user(request.form)
     if "_flashes" in session.keys() or not validation_check:
-        flash("Update account information unsuccessful. Please Try Again!")
-        return redirect("/dashboard")
+        flash("Updating unsuccessful because email account already exists! Please Try Again!")
+        return render_template("editaccount.html", first_name = first_name, last_name = last_name, email = email)
     else:
         try:
-            edit_user = User.edit_new_user(request.form)
+            edit_user = User.edit_user(request.form)
             return redirect("/dashboard")
         except IntegrityError:
             db.session.rollback()
-            flash("Sorry. This email already exists for this account! Please try a different email address!")
-            return redirect("/view_edit_account")
+            flash("Sorry. This email already exists! Please try a different email address!")
+            return render_template("editaccount.html", first_name = first_name, last_name = last_name, email = email)
 
 def add_quote():
-    return redirect("/")
+    validation_check = Quote.validate_quote(request.form)
+    if "_flashes" in session.keys() or not validation_check:
+        flash("Adding quote to database was unsuccessful. Try again")
+        return redirect("/dashboard")
+    else:
+        new_quote = Quote.add_new_quote(request.form)
+        return redirect("/dashboard")
 
 def like_quote():
     return redirect("/")

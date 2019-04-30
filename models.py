@@ -45,36 +45,46 @@ class User(db.Model):
     @classmethod
     def validate_edit_user(cls, edit_user_data):
         is_valid = True
-        if len(new_user_data["first_name"]) < 1 or re.search("[^a-zA-ZäöüßÄÖÜ]", edit_user_data["first_name"]):
+        if len(edit_user_data["edit_first_name"]) < 1 or re.search("[^a-zA-ZäöüßÄÖÜ]", edit_user_data["edit_first_name"]):
             is_valid = False
             flash("Please enter a valid first name.")
-        if len(new_user_data["last_name"]) < 1 or re.search("[^a-zA-ZäöüßÄÖÜ]", edit_user_data["last_name"]):
+        if len(edit_user_data["edit_last_name"]) < 1 or re.search("[^a-zA-ZäöüßÄÖÜ]", edit_user_data["edit_last_name"]):
             is_valid = False
             flash("Please enter a valid last name. Must be between 3-20 characters in length and contain no numbers or special characters.")
-        if len(new_user_data["email"]) < 1 or not re.search("[^@]+@[^@]+\.[^@]+", edit_user_data["email"]):
+        if len(edit_user_data["edit_email"]) < 1 or (edit_user_data["edit_email"] == edit_user_data["edit_email"])or not re.search("[^@]+@[^@]+\.[^@]+", edit_user_data["edit_email"]):
             is_valid = False
         return is_valid
 
     @classmethod
-    def edit_new_user(cls, new_user_data):
-        edit_user = cls(
-            edit_first_name = new_user_data["first_name"],
-            edit_last_name = new_user_data["last_name"],
-            edit_email = new_user_data["email"],
-        )
-        db.session.add(edit_user)
+    def edit_user(cls, edit_user_data):
+        user_instance_to_update = User.query.get(edit_user_data["login_id"])
+        print(user_instance_to_update)
+        user_instance_to_update.first_name = edit_user_data["edit_first_name"]
+        user_instance_to_update.last_name = edit_user_data["edit_last_name"]
+        user_instance_to_update.email = edit_user_data["edit_email"]
         db.session.commit()
-        flash("You successfully updated your account!")
-        return edit_user
+        flash("Updated account information successful!")
+        return user_instance_to_update
 
 class Quote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     posted_by = db.relationship('User', foreign_keys=[user_id], backref='user_quotes', cascade='all')
     author_of_quote = db.Column(db.String(255))
-    quote_content = db.Column(db.String(500))
+    quote_content = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, server_default=func.now())
     updated_at = db.Column(db.DateTime, server_default=func.now(), onupdate=func.now())
+
+    @classmethod
+    def validate_quote(cls, new_quote_data):
+        is_valid = True
+        if len(new_quote_data["author_of_quote"]) < 3:
+            is_valid = False
+            flash("Please enter a valid author name.")
+        if len(new_quote_data["quote_content"]) < 10:
+            is_valid = False
+            flash("Please enter a quote length of 10 characters long.")
+        return is_valid
 
     @classmethod
     def add_new_quote(cls, new_quote_data):
@@ -84,7 +94,7 @@ class Quote(db.Model):
             author_of_quote = new_quote_data["author_of_quote"],
             quote_content = new_quote_data["quote_content"]
         )
-        db.session.add(add_user)
+        db.session.add(add_quote)
         db.session.commit()
         flash("Quote successfully added!!")
         return add_quote

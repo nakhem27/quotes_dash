@@ -108,8 +108,10 @@ def delete_quote():
 
 def view_quotes_added_by_one_user(id):
     one_user_quotes = all_quotes = db.session.query(Quote, User).filter(Quote.user_id == User.id).filter(User.id == id).all()
+    first_name = one_user_quotes[0].User.first_name
+    last_name = one_user_quotes[0].User.last_name
     print(one_user_quotes)
-    return render_template("view_quotes_added_by_one_user.html", one_user_quotes = one_user_quotes)
+    return render_template("view_quotes_added_by_one_user.html", one_user_quotes = one_user_quotes, first_name = first_name, last_name = last_name)
 
 def logout():
     session['logged_in'] = False

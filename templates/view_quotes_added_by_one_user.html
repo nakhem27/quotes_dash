@@ -33,8 +33,8 @@
         </div>
     </nav>
 
+    <h3>{{ first_name }} {{ last_name }}'s Quotes</h3>
     {% for quotes in one_user_quotes %}
-        <h3>{{ quotes[1].first_name }} {{ quotes[1].last_name }}'s Quotes</h3>
         <div class="border border-success">
             <p>{{ quotes[0].author_of_quote }} : {{ quotes[0].quote_content }} </p>
         </div>

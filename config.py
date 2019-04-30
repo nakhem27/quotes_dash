@@ -5,7 +5,6 @@ from flask_bcrypt import Bcrypt
 from sqlalchemy.sql import func
 from flask_migrate import Migrate
 from sqlalchemy.exc import IntegrityError
-from datetime import date, datetime, timedelta
 import re
 
 app = Flask(__name__)

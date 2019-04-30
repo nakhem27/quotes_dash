@@ -1,4 +1,4 @@
-from config import db, re, func, flash, bcrypt, datetime, timedelta
+from config import db, re, func, flash, bcrypt
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -17,13 +17,13 @@ class User(db.Model):
             flash("Please enter a valid first name.")
         if len(new_user_data["last_name"]) < 1 or re.search("[^a-zA-ZäöüßÄÖÜ]", new_user_data["last_name"]):
             is_valid = False
-            flash("Please enter a valid last name. Must be between 3-20 characters in length and contain no numbers or special characters.")
+            flash("Please enter a valid last name.")
         if len(new_user_data["email"]) < 1 or not re.search("[^@]+@[^@]+\.[^@]+", new_user_data["email"]):
             is_valid = False
             flash("Please enter a valid email address containing @ AND . followed by com/org/etc.")
         if len(new_user_data["password"]) < 8:
             is_valid = False
-            flash("Password should be at least 8 characters and contain one number and uppercase letter")
+            flash("Password should be at least 8 characters.")
         if new_user_data["confirm_password"] != new_user_data["password"]:
             is_valid = False
             flash("Passwords do not match!")
@@ -50,7 +50,7 @@ class User(db.Model):
             flash("Please enter a valid first name.")
         if len(edit_user_data["edit_last_name"]) < 1 or re.search("[^a-zA-ZäöüßÄÖÜ]", edit_user_data["edit_last_name"]):
             is_valid = False
-            flash("Please enter a valid last name. Must be between 3-20 characters in length and contain no numbers or special characters.")
+            flash("Please enter a valid last name.")
         if len(edit_user_data["edit_email"]) < 1 or (edit_user_data["edit_email"] == edit_user_data["edit_email"])or not re.search("[^@]+@[^@]+\.[^@]+", edit_user_data["edit_email"]):
             is_valid = False
         return is_valid
